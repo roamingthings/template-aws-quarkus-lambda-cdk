@@ -1,0 +1,58 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  merge_group:
+    types: [checks_requested]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and test application
+
+    permissions:
+      checks: write
+      contents: read
+      issues: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
+        with:
+          java-version: 25
+          distribution: corretto
+          cache: maven
+
+      - name: Setup Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: '24'
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - name: Run Tests of my-lambda
+        env:
+          TZ: Europe/Berlin
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
+          LANGUAGE: en_US.UTF-8
+          CI: true
+        working-directory: ./my-lambda
+        run: ../mvnw clean verify
+
+      - name: Synthesize CDK Stack
+        working-directory: ./cdk
+        run: cdk synth
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
+        if: always()
+        with:
+          files: "**/target/surefire-reports/**/*.xml"
