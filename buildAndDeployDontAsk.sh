@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 echo "building application"
-cd my-lambda && mvn clean package
+cd my-lambda && ../gradlew clean build
 echo "building CDK"
-cd ../cdk && mvn clean package && cdk deploy --all --require-approval=never
+cd ../cdk && ../gradlew clean build && cdk deploy --all --require-approval=never

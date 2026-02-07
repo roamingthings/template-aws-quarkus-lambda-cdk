@@ -20,7 +20,6 @@ Fork this repository to bootstrap serverless applications with:
 ### Development Environment
 
 - Java 25 (use [SDKMAN](https://sdkman.io/): `sdk install java 25-open`)
-- Maven 3.9+
 - AWS CLI configured with credentials
 - Node.js 24+ (for AWS CDK)
 - AWS CDK Toolkit: `npm install -g aws-cdk`
@@ -38,7 +37,7 @@ Or provide a local `./app.properties` file in the project root (takes precedence
 
 ## Project Structure
 
-Three independent Maven modules:
+Three independent Gradle builds:
 
 - **my-lambda/** - Application module with Quarkus handlers and shared libraries
 - **cdk/** - Infrastructure module with AWS CDK stacks
@@ -56,8 +55,8 @@ See [docs/project-structure.md](docs/project-structure.md) for detailed architec
 
 Executes:
 
-1. `mvn clean package` in my-lambda/
-2. `mvn clean package` in cdk/
+1. `../gradlew clean build` in my-lambda/
+2. `../gradlew clean build` in cdk/
 3. `cdk deploy --all --require-approval=never`
 
 ### Manual Build Steps
@@ -66,14 +65,14 @@ Executes:
 
 ```bash
 cd my-lambda
-mvn clean package
+../gradlew clean build
 ```
 
 **Synthesize CloudFormation template:**
 
 ```bash
 cd cdk
-mvn clean package
+../gradlew clean build
 cdk synth
 ```
 
@@ -93,7 +92,7 @@ cdk deploy
 
 ```bash
 cd my-lambda-st
-mvn verify
+../gradlew clean test
 ```
 
 ## Using This Template with Coding Agents
@@ -105,7 +104,7 @@ template for your use case.
 
 After forking and cloning your repository, use these prompts to configure the application:
 
-**1. Set application name and Maven coordinates:**
+**1. Set application name and Gradle coordinates:**
 
 ```
 Update the application name from "my-lambda" to "inventory-service".

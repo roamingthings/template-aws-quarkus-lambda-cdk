@@ -38,7 +38,7 @@ in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
 ## Package Naming
 
-- MUST create an application level package with a name derived from a maven project or context
+- MUST create an application level package with a name derived from the project or context
 - MUST name packages after their domain responsibilities
 - SHOULD create package-info.java for top level packages with JavaDoc documenting design decisions and
   responsibilities (not contents)
@@ -177,11 +177,11 @@ in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
 ## Integration Tests
 
-- MUST end integration tests with IT suffix; executed by the failsafe maven plugin (no configuration necessary)
+- MUST end integration tests with IT suffix
 
 ## System Tests (ST)
 
-- MUST create system tests in a dedicated Maven module ending with "-st"
+- MUST create system tests in a dedicated Gradle build ending with "-st"
 - MUST use microprofile-rest-client for testing JAX-RS resources
 - MUST place REST client interfaces in src/main/java of the -st module
 - MUST place test classes in src/test/java of the -st module
@@ -213,11 +213,11 @@ in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
 ## Project Management
 
-- MUST ask before changing pom.xml
+- MUST ask before changing build.gradle.kts or settings.gradle.kts
 - MUST NOT create or change any files on opening existing projects; MUST stop after initialization and wait for
   instructions
 - MUST NOT generate code initially in an empty project
-- MUST NOT create Maven pom.xml for Java 25 CLI applications
+- MUST NOT create build.gradle.kts for Java 25 CLI applications
 - MUST execute Java 25 CLI applications in source-file mode
 - MUST NOT use quarkus-hibernate-validator
 - MUST create metrics and observability features with OTEL / opentelemetry

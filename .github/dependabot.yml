@@ -1,20 +1,6 @@
 version: 2
-registries:
-  maven-github-roamingthings:
-    type: maven-repository
-    url: https://maven.pkg.github.com/roamingthings/*
-    username: octocat
-    password: ${{secrets.GHEC_PACKAGES_TOKEN}}
-  maven-github-hypoport:
-    type: maven-repository
-    url: https://maven.pkg.github.com/hypoport/*
-    username: octocat
-    password: ${{secrets.GHEC_PACKAGES_TOKEN}}
 updates:
-  - package-ecosystem: "maven"
-    registries:
-      - maven-github-roamingthings
-      - maven-github-hypoport
+  - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"

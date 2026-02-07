@@ -1,20 +1,21 @@
 {
-  "app": "mvn -e -q package exec:java",
+  "app": "../gradlew run --console=plain",
   "watch": {
     "include": [
       "**"
     ],
     "exclude": [
-      "README.md",
+      "*.md",
+      "*.txt",
+      "*.properties",
       "cdk*.json",
-      "target",
       ".classpath",
       ".project",
       ".idea",
-      ".settings",
-      ".vscode/**",
-      "*.md",
-      "*.txt"
+      "build",
+      "build.gradle.kts",
+      "settings.gradle.kts",
+      "src/test"
     ]
   },
   "context": {

@@ -35,7 +35,7 @@ public class MyLambdaStack extends Stack {
                         .functionName(itemHandlerFunctionName)
                         .description("A sample handler for sample items")
                         .modulePath("../my-lambda/handlers/item")
-                        .buildTool(QuarkusFunction.BuildTool.MAVEN)
+                        .buildTool(QuarkusFunction.BuildTool.GRADLE)
                         .applicationLogLevel(ApplicationLogLevel.INFO)
                         .systemLogLevel(SystemLogLevel.DEBUG)
                         .encryptionKey(encryptionKey)

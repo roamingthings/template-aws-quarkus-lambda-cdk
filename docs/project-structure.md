@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Three independent Maven projects for AWS Lambda application:
+Three independent Gradle builds for AWS Lambda application:
 
 - Java 25
 - Quarkus for Lambda handlers
@@ -13,47 +13,52 @@ Three independent Maven projects for AWS Lambda application:
 
 ```
 project-root/
+├── gradle/
+│   └── libs.versions.toml           # Shared version catalog
 ├── my-lambda/                # APPLICATION MODULE
-│   ├── pom.xml                       # Independent POM with BOM imports
+│   ├── build.gradle.kts              # Root build with shared configuration
+│   ├── settings.gradle.kts           # Multi-project build settings
 │   ├── shared/
 │   │   ├── shared-model/            # Shared domain models library
-│   │   │   ├── pom.xml
+│   │   │   ├── build.gradle.kts
 │   │   │   └── src/
 │   │   │       ├── main/java/com/example/shared/model/
 │   │   │       └── test/java/com/example/shared/model/
 │   │   ├── shared-util/             # Shared utilities library (optional)
-│   │   │   ├── pom.xml
+│   │   │   ├── build.gradle.kts
 │   │   │   └── src/
 │   │   └── shared-service/          # Shared services library (optional)
-│   │       ├── pom.xml
+│   │       ├── build.gradle.kts
 │   │       └── src/
 │   └── handlers/
 │       ├── create/
-│       │   ├── pom.xml
+│       │   ├── build.gradle.kts
 │       │   └── src/
 │       │       ├── main/java/com/example/handlers/create/
 │       │       │   └── CreateHandler.java
 │       │       └── test/java/com/example/handlers/create/
 │       ├── update/
-│       │   ├── pom.xml
+│       │   ├── build.gradle.kts
 │       │   └── src/
 │       │       ├── main/java/com/example/handlers/update/
 │       │       │   └── UpdateHandler.java
 │       │       └── test/java/com/example/handlers/update/
 │       └── delete/
-│           ├── pom.xml
+│           ├── build.gradle.kts
 │           └── src/
 │               ├── main/java/com/example/handlers/delete/
 │               │   └── DeleteHandler.java
 │               └── test/java/com/example/handlers/delete/
 │
 ├── cdk/                              # INFRASTRUCTURE MODULE
-│   ├── pom.xml                       # Independent POM
+│   ├── build.gradle.kts              # Standalone build with application plugin
+│   ├── settings.gradle.kts
 │   └── src/main/java/com/example/infra/
 │       └── LambdaStack.java
 │
 └── my-lambda-st/             # SYSTEM TESTS MODULE
-    ├── pom.xml                       # Independent POM (NO app dependencies)
+    ├── build.gradle.kts              # Standalone build (NO app dependencies)
+    ├── settings.gradle.kts
     └── src/test/java/com/example/systemtest/
         ├── CreateFlowTest.java
         ├── UpdateFlowTest.java
@@ -64,34 +69,22 @@ project-root/
 
 ### `my-lambda/` - Application Module
 
-Multi-module Maven project containing:
+Multi-project Gradle build containing:
 
-**Root `pom.xml`:**
+**Root `build.gradle.kts`:**
 
-- Parent POM for application only
-- Uses Quarkus BOM import for version management
-- Manages `shared/*` and `handlers/*` modules
+- Shared configuration for all subprojects
+- Uses Quarkus BOM via `enforcedPlatform` for version management
+- Includes `shared/*` and `handlers/*` subprojects
 
-```xml
+```kotlin
+subprojects {
+    apply(plugin = "java")
 
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>io.quarkus.platform</groupId>
-            <artifactId>quarkus-bom</artifactId>
-            <version>3.17.0</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-
-<modules>
-<module>shared/shared-model</module>
-<module>handlers/create</module>
-<module>handlers/update</module>
-<module>handlers/delete</module>
-</modules>
+    dependencies {
+        implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.31.2"))
+    }
+}
 ```
 
 **`shared/*` modules:**
@@ -112,56 +105,42 @@ Multi-module Maven project containing:
 
 ### `cdk/` - Infrastructure Module
 
-Completely independent Maven project:
+Completely independent Gradle build:
 
-**`pom.xml`:**
+**`build.gradle.kts`:**
 
-- Standalone POM with CDK dependencies
+- Standalone build with CDK dependencies from version catalog
 - No dependency on application modules
 - References handler JARs by filesystem path for deployment
 
-```xml
-
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>software.amazon.awscdk</groupId>
-            <artifactId>aws-cdk-lib</artifactId>
-            <version>2.165.0</version>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
+```kotlin
+dependencies {
+    implementation(libs.aws.cdk.lib)
+    implementation(libs.aws.cdk.constructs)
+}
 ```
 
 **Purpose:**
 
 - Defines all AWS resources (Lambda functions, API Gateway, DynamoDB, etc.)
-- Deploys handler JARs from `../my-lambda/handlers/*/target/`
+- Deploys handler JARs from `../my-lambda/handlers/*/build/`
 - Independent lifecycle from application
 
 ### `my-lambda-st/` - System Tests Module
 
-Completely independent Maven project:
+Completely independent Gradle build:
 
-**`pom.xml`:**
+**`build.gradle.kts`:**
 
-- Standalone POM with AWS SDK BOM import
+- Standalone build with AWS SDK BOM via `platform`
 - **MUST NOT** depend on application or shared modules
 - Only uses AWS SDK to interact with deployed resources
 
-```xml
-
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>bom</artifactId>
-            <version>2.29.0</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
+```kotlin
+dependencies {
+    implementation(platform(libs.aws.sdk.bom))
+    implementation(libs.aws.sdk.lambda)
+}
 ```
 
 **Purpose:**
@@ -176,11 +155,11 @@ System tests MUST behave like a standalone external application with no access t
 
 ## Key Decisions
 
-1. **Three independent top-level modules**: Application, Infrastructure, System Tests
-2. **No root parent POM**: Each top-level module is self-contained
-3. **BOM imports**: Version management via Bill of Materials (Quarkus standard approach)
+1. **Three independent top-level builds**: Application, Infrastructure, System Tests
+2. **No root build file**: Each top-level build is self-contained
+3. **Version catalog**: Shared `gradle/libs.versions.toml` for consistent dependency versions
 4. **Isolated system tests**: No shared dependencies to force proper contract testing
-5. **Application as multi-module**: Only the application module has sub-modules (shared/* + handlers/*)
+5. **Application as multi-project**: Only the application build has subprojects (shared/* + handlers/*)
 6. **Multiple shared libraries**: Organized under `shared/` directory by concern (model, util, service)
 7. **CDK naming**: Common practice across languages for infrastructure code
 8. **Minimal dependencies**: Each module only includes what it needs
@@ -194,15 +173,15 @@ Build modules independently:
 ```bash
 # Build application
 cd my-lambda
-mvn clean install
+../gradlew clean build
 
 # Build infrastructure
 cd cdk
-mvn clean install
+../gradlew clean build
 
 # Build system tests
 cd my-lambda-st
-mvn clean install
+../gradlew clean build
 ```
 
 ### CI/CD Pipeline
@@ -226,22 +205,21 @@ Each module updates independently:
 ```bash
 # Application
 cd my-lambda
-mvn clean install                              # Build all shared libs and handlers
-mvn clean install -pl shared/shared-model      # Build specific shared lib
-mvn clean install -pl handlers/create -am      # Build specific handler with dependencies
-mvn clean install -Pnative                     # Native build
+../gradlew clean build                          # Build all shared libs and handlers
+../gradlew :shared:shared-model:build           # Build specific shared lib
+../gradlew :handlers:create:build               # Build specific handler
 
 # Infrastructure
 cd cdk
-mvn clean install
+../gradlew clean build
 cdk synth                           # Synthesize CloudFormation
 cdk deploy                          # Deploy to AWS
 cdk diff                            # Show changes
 
 # System Tests
 cd my-lambda-st
-mvn verify                          # Run against deployed resources
-mvn test -Dtest=CreateFlowTest      # Run specific test
+../gradlew clean test               # Run against deployed resources
+../gradlew test --tests '*CreateFlowTest' # Run specific test
 ```
 
 ## Module Independence Benefits

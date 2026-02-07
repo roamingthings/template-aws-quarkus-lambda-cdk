@@ -1,0 +1,19 @@
+[versions]
+assertj = "3.27.7"
+awsCdkLib = "2.237.0"
+awsCdkConstructs = "10.4.5"
+awsSdk = "2.41.23"
+jspecify = "1.0.0"
+junitJupiter = "6.0.2"
+slf4j = "2.0.17"
+
+[libraries]
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+aws-cdk-lib = { module = "software.amazon.awscdk:aws-cdk-lib", version.ref = "awsCdkLib" }
+aws-cdk-constructs = { module = "software.constructs:constructs", version.ref = "awsCdkConstructs" }
+aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSdk" }
+aws-sdk-lambda = { module = "software.amazon.awssdk:lambda", version.ref = "awsSdk" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+junit-jupiter-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
+slf4j-bom = { module = "org.slf4j:slf4j-bom", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }

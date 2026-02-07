@@ -1,3 +1,3 @@
 #!/bin/sh
 set -e
-mvn -DskipTests clean package && cdk deploy --all --require-approval=never
+../gradlew -x test clean build && cdk deploy --all --require-approval=never

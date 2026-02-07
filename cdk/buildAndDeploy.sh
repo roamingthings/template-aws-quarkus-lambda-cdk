@@ -1,3 +1,3 @@
 #!/bin/sh
 set -e
-mvn -DskipTests clean package && cdk deploy
+../gradlew -x test clean build && cdk deploy
