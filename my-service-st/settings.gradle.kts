@@ -12,4 +12,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "my-lambda-st"
+rootProject.name = "my-service-st"

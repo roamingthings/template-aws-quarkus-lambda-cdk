@@ -7,7 +7,7 @@ import software.amazon.awscdk.Tags;
 
 public interface CdkApp {
 
-    String APP_NAME = "my-lambda";
+    String APP_NAME = "my-service";
 
     static void main(String... args) {
         var app = new App();

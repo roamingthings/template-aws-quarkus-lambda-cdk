@@ -1,5 +1,5 @@
 rootProject.name = "template-aws-quarkus-lambda-cdk"
 
-includeBuild("my-lambda")
+includeBuild("my-service")
 includeBuild("cdk")
-includeBuild("my-lambda-st")
+includeBuild("my-service-st")
