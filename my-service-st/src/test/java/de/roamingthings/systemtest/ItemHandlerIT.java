@@ -28,7 +28,7 @@ class ItemHandlerIT {
                     """;
 
             var request = InvokeRequest.builder()
-                    .functionName("my-lambda-ItemHandler")
+                    .functionName("my-service-ItemHandler")
                     .payload(SdkBytes.fromUtf8String(payload))
                     .build();
 

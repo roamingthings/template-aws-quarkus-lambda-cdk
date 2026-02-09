@@ -17,7 +17,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "my-lambda"
+rootProject.name = "my-service"
 
 include("shared:shared-model")
 include("handlers:item")

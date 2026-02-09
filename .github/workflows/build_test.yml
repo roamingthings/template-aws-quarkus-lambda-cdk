@@ -40,7 +40,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        working-directory: ./my-lambda
+        working-directory: ./my-service
         run: gradle clean build
 
       - name: Publish Unit Test Results
@@ -74,7 +74,7 @@ jobs:
         run: npm install -g aws-cdk
 
       - name: Build Application
-        working-directory: ./my-lambda
+        working-directory: ./my-service
         run: gradle -x test clean build
 
       - name: Build
