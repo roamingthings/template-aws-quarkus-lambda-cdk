@@ -1,4 +1,4 @@
-package de.roamingthings.mylambda.boundary;
+package de.roamingthings.myservice.boundary;
 
 import de.roamingthings.ConventionalDefaults;
 import de.roamingthings.compliance.control.ComplianceStackAspect;
@@ -18,23 +18,23 @@ import java.util.Objects;
 
 import static java.lang.Boolean.TRUE;
 
-public class MyLambdaStack extends Stack {
+public class MyServiceStack extends Stack {
 
-    public MyLambdaStack(Construct scope, String id, MyLambdaStackProps props) {
+    public MyServiceStack(Construct scope, String id, MyServiceStackProps props) {
         super(scope, id, props.stackProps);
 
         var encryptionKey = (TRUE.equals(props.encryptWithCmk)) ?
                 ApplicationEncryptionKey.create(this, "ApplicationEncryptionKey", List.of()) : null;
 
-        var itemHandlerFunctionName = ConventionalDefaults.resourceName(props.appName, "ItemHandler");
+        var greeterHandlerFunctionName = ConventionalDefaults.resourceName(props.appName, "GreeterHandler");
 
         var itemFunction = new QuarkusFunction(
                 this,
-                "ItemHandlerFunction",
+                "GreeterHandlerFunction",
                 QuarkusFunction.QuarkusLambdaFunctionProps.builder()
-                        .functionName(itemHandlerFunctionName)
-                        .description("A sample handler for sample items")
-                        .modulePath("../my-service/handlers/item")
+                        .functionName(greeterHandlerFunctionName)
+                        .description("A sample handler that greets")
+                        .modulePath("../my-service/handlers/greeter")
                         .buildTool(QuarkusFunction.BuildTool.GRADLE)
                         .applicationLogLevel(ApplicationLogLevel.INFO)
                         .systemLogLevel(SystemLogLevel.DEBUG)
@@ -48,17 +48,17 @@ public class MyLambdaStack extends Stack {
     }
 
     private void createStackOutputs(Alias liveAlias) {
-        CfnOutput.Builder.create(this, "ItemHandlerFunctionArn")
+        CfnOutput.Builder.create(this, "GreeterHandlerFunctionArn")
                 .value(liveAlias.getFunctionArn())
                 .build();
     }
 
-    public record MyLambdaStackProps(
+    public record MyServiceStackProps(
             String appName,
             StackProps stackProps,
             Boolean encryptWithCmk
     ) {
-        public MyLambdaStackProps {
+        public MyServiceStackProps {
             Objects.requireNonNull(appName, "appName is required");
             Objects.requireNonNull(stackProps, "stackProps is required");
         }

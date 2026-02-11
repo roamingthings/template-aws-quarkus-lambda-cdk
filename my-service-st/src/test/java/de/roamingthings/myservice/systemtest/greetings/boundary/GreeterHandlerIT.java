@@ -1,4 +1,4 @@
-package de.roamingthings.systemtest;
+package de.roamingthings.myservice.systemtest.greetings.boundary;
 
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.core.SdkBytes;
@@ -10,12 +10,12 @@ import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ItemHandlerIT {
+class GreeterHandlerIT {
 
-    static final System.Logger LOGGER = System.getLogger(ItemHandlerIT.class.getName());
+    static final System.Logger LOGGER = System.getLogger(GreeterHandlerIT.class.getName());
 
     @Test
-    void invokeItemHandler() {
+    void invokeHandler() {
         InvokeResponse response;
         try (var lambdaClient = LambdaClient.builder().build()) {
 
@@ -28,7 +28,7 @@ class ItemHandlerIT {
                     """;
 
             var request = InvokeRequest.builder()
-                    .functionName("my-service-ItemHandler")
+                    .functionName("my-service-GreeterHandler")
                     .payload(SdkBytes.fromUtf8String(payload))
                     .build();
 
@@ -39,7 +39,6 @@ class ItemHandlerIT {
         LOGGER.log(System.Logger.Level.INFO, "Response: {0}", responsePayload);
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(responsePayload).contains("Test Item")
-                .contains("Test Description");
+        assertThat(responsePayload).isEqualTo("{\"message\":\"hello, Quarkus on BCE\"}");
     }
 }

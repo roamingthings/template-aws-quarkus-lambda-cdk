@@ -1,4 +1,4 @@
-package de.roamingthings.handlers.item.boundary;
+package de.roamingthings.myservice.greetings.boundary;
 
 import de.roamingthings.shared.model.entity.Item;
 import io.quarkus.test.junit.QuarkusTest;
@@ -8,10 +8,10 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 
 @QuarkusTest
-class ItemHandlerTest {
+class GreeterHandlerTest {
 
     @Test
-    void testSimpleLambdaSuccess() throws Exception {
+    void testSimpleLambdaSuccess() {
         // you test your lambdas by invoking on http://localhost:8081
         // this works in dev mode too
 
@@ -24,6 +24,6 @@ class ItemHandlerTest {
                 .post()
                 .then()
                 .statusCode(200)
-                .body(containsString("[72fee59e-3812-4dd6-be49-6ab638ee5a5e] You gave me Test Item with description Test Description"));
+                .body(containsString("{\"message\":\"hello, Quarkus on BCE\"}"));
     }
 }

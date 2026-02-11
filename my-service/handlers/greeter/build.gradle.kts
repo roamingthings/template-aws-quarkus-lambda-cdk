@@ -12,6 +12,7 @@ dependencies {
     implementation("io.quarkus:quarkus-amazon-lambda")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-logging-json")
+    implementation("io.quarkus:quarkus-jsonp")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation(libs.assertj.core)

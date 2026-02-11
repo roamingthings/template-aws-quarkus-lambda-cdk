@@ -202,9 +202,9 @@ in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 ## JSON Serialization (JSON-P)
 
 - SHOULD prefer JSON-P over JSON-B
-- SHOULD ship record entities with toJSON method returning a JSON-P object
+- SHOULD ship record entities with toJson method returning a JSON-P object
 - MUST map JSON-P in the boundary to entities
-- SHOULD create record entities from JSON-P JsonObject in static method: fromJSON(JsonObject json)
+- SHOULD create record entities from JSON-P JsonObject in static method: fromJson(JsonObject json)
 
 ## HTTP Client
 

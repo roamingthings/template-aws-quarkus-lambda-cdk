@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 rootProject.name = "my-service"
 
 include("shared:shared-model")
-include("handlers:item")
+include("handlers:greeter")
