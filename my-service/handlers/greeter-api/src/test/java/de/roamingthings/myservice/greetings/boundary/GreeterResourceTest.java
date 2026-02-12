@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.containsString;
 
 @QuarkusTest
-class GreeterHandlerTest {
+class GreeterResourceTest {
 
     @Test
     void testSimpleLambdaSuccess() {
@@ -18,7 +18,7 @@ class GreeterHandlerTest {
                 .accept("application/json")
                 .body(in)
                 .when()
-                .post()
+                .post("/greet")
                 .then()
                 .statusCode(200)
                 .body(containsString("{\"message\":\"hello, Quarkus on BCE\"}"));

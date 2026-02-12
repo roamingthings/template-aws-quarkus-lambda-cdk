@@ -21,3 +21,4 @@ rootProject.name = "my-service"
 
 include("shared:shared-model")
 include("handlers:greeter")
+include("handlers:greeter-api")

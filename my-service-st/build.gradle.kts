@@ -1,5 +1,6 @@
 plugins {
     java
+    id("io.quarkus")
 }
 
 repositories {
@@ -15,14 +16,20 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
+val quarkusPlatformGroupId: String by project
+val quarkusPlatformArtifactId: String by project
+val quarkusPlatformVersion: String by project
+
 dependencies {
+    implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation("io.quarkus:quarkus-arc")
+    implementation("io.quarkus:quarkus-rest-client")
+    implementation("io.quarkus:quarkus-rest-client-jackson")
+    implementation(libs.jspecify)
     implementation(platform(libs.aws.sdk.bom))
     implementation(libs.aws.sdk.lambda)
-    implementation(platform(libs.slf4j.bom))
-    implementation(libs.slf4j.simple)
     testImplementation(platform(libs.junit.jupiter.bom))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.quarkus:quarkus-junit")
     testImplementation(libs.assertj.core)
 }
 
