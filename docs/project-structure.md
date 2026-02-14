@@ -13,6 +13,11 @@ Three independent Gradle builds for AWS Lambda application:
 
 ```
 project-root/
+├── build-logic/                                      # CONVENTION PLUGINS
+│   ├── build.gradle.kts
+│   ├── settings.gradle.kts
+│   └── src/main/kotlin/
+│       └── nullability-conventions.gradle.kts
 ├── gradle/
 │   └── libs.versions.toml           # Shared version catalog
 ├── my-service/                # APPLICATION MODULE
@@ -153,16 +158,26 @@ dependencies {
 **Critical constraint:**
 System tests MUST behave like a standalone external application with no access to application internals.
 
+## `build-logic/` - Convention Plugins
+
+Shared Gradle convention plugins applied by all modules. Contains:
+
+- **`nullability-conventions`** - Configures Error Prone with NullAway to enforce JSpecify nullability annotations at
+  compile time. All Error Prone checks are disabled except NullAway, which runs in JSpecify mode with `@NullMarked`
+  scope enforcement.
+
 ## Key Decisions
 
 1. **Three independent top-level builds**: Application, Infrastructure, System Tests
 2. **No root build file**: Each top-level build is self-contained
 3. **Version catalog**: Shared `gradle/libs.versions.toml` for consistent dependency versions
-4. **Isolated system tests**: No shared dependencies to force proper contract testing
-5. **Application as multi-project**: Only the application build has subprojects (shared/* + handlers/*)
-6. **Multiple shared libraries**: Organized under `shared/` directory by concern (model, util, service)
-7. **CDK naming**: Common practice across languages for infrastructure code
-8. **Minimal dependencies**: Each module only includes what it needs
+4. **Convention plugins via `build-logic/`:** Centralized build configuration (e.g., nullability enforcement) applied
+   consistently across all modules
+5. **Isolated system tests**: No shared dependencies to force proper contract testing
+6. **Application as multi-project**: Only the application build has subprojects (shared/* + handlers/*)
+7. **Multiple shared libraries**: Organized under `shared/` directory by concern (model, util, service)
+8. **CDK naming**: Common practice across languages for infrastructure code
+9. **Minimal dependencies**: Each module only includes what it needs
 
 ## Build Strategy
 

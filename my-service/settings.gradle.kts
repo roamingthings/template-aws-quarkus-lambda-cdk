@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("../build-logic")
     val quarkusPluginVersion: String by settings
     val quarkusPluginId: String by settings
     repositories {

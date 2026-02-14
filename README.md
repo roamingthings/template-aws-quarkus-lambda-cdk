@@ -171,6 +171,13 @@ The template provisions:
 Function naming follows: `{appName}-{resourceName}` convention
 Stack naming follows: `{appName}-{stackName}-stack` convention
 
+## Nullability Enforcement
+
+[JSpecify](https://jspecify.dev/) annotations with [NullAway](https://github.com/uber/NullAway) enforce nullability at
+compile time. Top-level `package-info.java` files declare `@NullMarked`; use `@Nullable` only where null is explicitly
+allowed. The `nullability-conventions` Gradle plugin in [`build-logic/`](build-logic/) centralizes the Error Prone and
+NullAway configuration for all modules.
+
 ## Development Guidelines
 
 This project follows strict coding conventions defined in [AGENTS.md](AGENTS.md). Key principles:
@@ -180,6 +187,7 @@ This project follows strict coding conventions defined in [AGENTS.md](AGENTS.md)
 - Package-private visibility by default
 - Static factory methods over constructors
 - System.Logger for logging
+- JSpecify nullability with compile-time enforcement via NullAway
 - Simplicity over patterns (KISS, YAGNI)
 
 Review [AGENTS.md](AGENTS.md) before contributing.
