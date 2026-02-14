@@ -2,7 +2,7 @@
 assertj = "3.27.7"
 awsCdkLib = "2.237.0"
 awsCdkConstructs = "10.4.5"
-awsSdk = "2.41.24"
+awsSdk = "2.41.29"
 errorprone-core = "2.47.0"
 errorprone-plugin = "5.0.0"
 jspecify = "1.0.0"
