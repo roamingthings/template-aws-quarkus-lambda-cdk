@@ -26,7 +26,7 @@ Fork this repository to bootstrap serverless applications with:
 
 ### AWS Configuration
 
-Create `~/.my-lambda/app.properties` with deployment configuration:
+Create `~/.my-service/app.properties` with deployment configuration:
 
 ```properties
 stack.props.region=eu-central-1
@@ -39,9 +39,9 @@ Or provide a local `./app.properties` file in the project root (takes precedence
 
 Three independent Gradle builds:
 
-- **my-lambda/** - Application module with Quarkus handlers and shared libraries
+- **my-service/** - Application module with Quarkus handlers and shared libraries
 - **cdk/** - Infrastructure module with AWS CDK stacks
-- **my-lambda-st/** - System tests module for end-to-end testing
+- **my-service-st/** - System tests module for end-to-end testing
 
 See [docs/project-structure.md](docs/project-structure.md) for detailed architecture.
 
@@ -55,7 +55,7 @@ See [docs/project-structure.md](docs/project-structure.md) for detailed architec
 
 Executes:
 
-1. `../gradlew clean build` in my-lambda/
+1. `../gradlew clean build` in my-service/
 2. `../gradlew clean build` in cdk/
 3. `cdk deploy --all --require-approval=never`
 
@@ -64,7 +64,7 @@ Executes:
 **Build application:**
 
 ```bash
-cd my-lambda
+cd my-service
 ../gradlew clean build
 ```
 
@@ -91,7 +91,7 @@ cdk deploy
 **Run system tests:**
 
 ```bash
-cd my-lambda-st
+cd my-service-st
 ../gradlew clean test
 ```
 
@@ -107,7 +107,7 @@ After forking and cloning your repository, use these prompts to configure the ap
 **1. Set application name and Gradle coordinates:**
 
 ```
-Update the application name from "my-lambda" to "inventory-service".
+Update the application name from "my-service" to "inventory-service".
 Update all package names accordingly. Update the stack names and resource
 names to use the new application name.
 ```
@@ -171,6 +171,13 @@ The template provisions:
 Function naming follows: `{appName}-{resourceName}` convention
 Stack naming follows: `{appName}-{stackName}-stack` convention
 
+## Nullability Enforcement
+
+[JSpecify](https://jspecify.dev/) annotations with [NullAway](https://github.com/uber/NullAway) enforce nullability at
+compile time. Top-level `package-info.java` files declare `@NullMarked`; use `@Nullable` only where null is explicitly
+allowed. The `nullability-conventions` Gradle plugin in [`build-logic/`](build-logic/) centralizes the Error Prone and
+NullAway configuration for all modules.
+
 ## Development Guidelines
 
 This project follows strict coding conventions defined in [AGENTS.md](AGENTS.md). Key principles:
@@ -180,6 +187,7 @@ This project follows strict coding conventions defined in [AGENTS.md](AGENTS.md)
 - Package-private visibility by default
 - Static factory methods over constructors
 - System.Logger for logging
+- JSpecify nullability with compile-time enforcement via NullAway
 - Simplicity over patterns (KISS, YAGNI)
 
 Review [AGENTS.md](AGENTS.md) before contributing.

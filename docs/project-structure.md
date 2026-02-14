@@ -13,9 +13,14 @@ Three independent Gradle builds for AWS Lambda application:
 
 ```
 project-root/
+├── build-logic/                                      # CONVENTION PLUGINS
+│   ├── build.gradle.kts
+│   ├── settings.gradle.kts
+│   └── src/main/kotlin/
+│       └── nullability-conventions.gradle.kts
 ├── gradle/
 │   └── libs.versions.toml           # Shared version catalog
-├── my-lambda/                # APPLICATION MODULE
+├── my-service/                # APPLICATION MODULE
 │   ├── build.gradle.kts              # Root build with shared configuration
 │   ├── settings.gradle.kts           # Multi-project build settings
 │   ├── shared/
@@ -56,7 +61,7 @@ project-root/
 │   └── src/main/java/com/example/infra/
 │       └── LambdaStack.java
 │
-└── my-lambda-st/             # SYSTEM TESTS MODULE
+└── my-service-st/             # SYSTEM TESTS MODULE
     ├── build.gradle.kts              # Standalone build (NO app dependencies)
     ├── settings.gradle.kts
     └── src/test/java/com/example/systemtest/
@@ -67,7 +72,7 @@ project-root/
 
 ## Module Descriptions
 
-### `my-lambda/` - Application Module
+### `my-service/` - Application Module
 
 Multi-project Gradle build containing:
 
@@ -82,7 +87,7 @@ subprojects {
     apply(plugin = "java")
 
     dependencies {
-        implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.31.2"))
+        implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.31.3"))
     }
 }
 ```
@@ -123,10 +128,10 @@ dependencies {
 **Purpose:**
 
 - Defines all AWS resources (Lambda functions, API Gateway, DynamoDB, etc.)
-- Deploys handler JARs from `../my-lambda/handlers/*/build/`
+- Deploys handler JARs from `../my-service/handlers/*/build/`
 - Independent lifecycle from application
 
-### `my-lambda-st/` - System Tests Module
+### `my-service-st/` - System Tests Module
 
 Completely independent Gradle build:
 
@@ -153,16 +158,26 @@ dependencies {
 **Critical constraint:**
 System tests MUST behave like a standalone external application with no access to application internals.
 
+## `build-logic/` - Convention Plugins
+
+Shared Gradle convention plugins applied by all modules. Contains:
+
+- **`nullability-conventions`** - Configures Error Prone with NullAway to enforce JSpecify nullability annotations at
+  compile time. All Error Prone checks are disabled except NullAway, which runs in JSpecify mode with `@NullMarked`
+  scope enforcement.
+
 ## Key Decisions
 
 1. **Three independent top-level builds**: Application, Infrastructure, System Tests
 2. **No root build file**: Each top-level build is self-contained
 3. **Version catalog**: Shared `gradle/libs.versions.toml` for consistent dependency versions
-4. **Isolated system tests**: No shared dependencies to force proper contract testing
-5. **Application as multi-project**: Only the application build has subprojects (shared/* + handlers/*)
-6. **Multiple shared libraries**: Organized under `shared/` directory by concern (model, util, service)
-7. **CDK naming**: Common practice across languages for infrastructure code
-8. **Minimal dependencies**: Each module only includes what it needs
+4. **Convention plugins via `build-logic/`:** Centralized build configuration (e.g., nullability enforcement) applied
+   consistently across all modules
+5. **Isolated system tests**: No shared dependencies to force proper contract testing
+6. **Application as multi-project**: Only the application build has subprojects (shared/* + handlers/*)
+7. **Multiple shared libraries**: Organized under `shared/` directory by concern (model, util, service)
+8. **CDK naming**: Common practice across languages for infrastructure code
+9. **Minimal dependencies**: Each module only includes what it needs
 
 ## Build Strategy
 
@@ -172,7 +187,7 @@ Build modules independently:
 
 ```bash
 # Build application
-cd my-lambda
+cd my-service
 ../gradlew clean build
 
 # Build infrastructure
@@ -180,31 +195,31 @@ cd cdk
 ../gradlew clean build
 
 # Build system tests
-cd my-lambda-st
+cd my-service-st
 ../gradlew clean build
 ```
 
 ### CI/CD Pipeline
 
-1. Build `my-lambda/` → produces handler JARs
+1. Build `my-service/` → produces handler JARs
 2. Build `cdk/` → uses handler JARs for deployment
 3. Deploy via `cdk deploy`
-4. Build and run `my-lambda-st/` → tests deployed resources
+4. Build and run `my-service-st/` → tests deployed resources
 
 ### Dependency Updates
 
 Each module updates independently:
 
 - **Dependabot**: Creates separate PRs per module
-- **Quarkus CLI**: `quarkus update` works in `my-lambda/`
+- **Quarkus CLI**: `quarkus update` works in `my-service/`
 - **CDK updates**: Only affect `cdk/` module
-- **Test dependencies**: Only affect `my-lambda-st/`
+- **Test dependencies**: Only affect `my-service-st/`
 
 ## Common Commands
 
 ```bash
 # Application
-cd my-lambda
+cd my-service
 ../gradlew clean build                          # Build all shared libs and handlers
 ../gradlew :shared:shared-model:build           # Build specific shared lib
 ../gradlew :handlers:create:build               # Build specific handler
@@ -217,7 +232,7 @@ cdk deploy                          # Deploy to AWS
 cdk diff                            # Show changes
 
 # System Tests
-cd my-lambda-st
+cd my-service-st
 ../gradlew clean test               # Run against deployed resources
 ../gradlew test --tests '*CreateFlowTest' # Run specific test
 ```
@@ -233,7 +248,7 @@ cd my-lambda-st
 
 ## Notes
 
-- Replace `my-lambda` with actual application name
+- Replace `my-service` with actual application name
 - Replace `com.example` with actual package name
 - Each handler can have different Quarkus configurations (application.properties)
 - CDK module references handler JARs via relative filesystem paths

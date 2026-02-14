@@ -1,13 +1,13 @@
 package de.roamingthings;
 
-import de.roamingthings.mylambda.boundary.MyLambdaStack;
+import de.roamingthings.myservice.boundary.MyServiceStack;
 import software.amazon.awscdk.Annotations;
 import software.amazon.awscdk.App;
 import software.amazon.awscdk.Tags;
 
 public interface CdkApp {
 
-    String APP_NAME = "my-lambda";
+    String APP_NAME = "my-service";
 
     static void main(String... args) {
         var app = new App();
@@ -15,7 +15,7 @@ public interface CdkApp {
         var configuration = Configuration.ofAppNamed(APP_NAME);
         var stackProps = configuration.stackProperties();
 
-        new MyLambdaStack(app, "MyLambdaStack", new MyLambdaStack.MyLambdaStackProps(
+        new MyServiceStack(app, "MyServiceStack", new MyServiceStack.MyServiceStackProps(
                 APP_NAME,
                 stackProps,
                 configuration.encryptWithCmk()

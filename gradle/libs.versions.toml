@@ -3,8 +3,12 @@ assertj = "3.27.7"
 awsCdkLib = "2.237.1"
 awsCdkConstructs = "10.4.5"
 awsSdk = "2.41.24"
+errorprone-core = "2.47.0"
+errorprone-plugin = "5.0.0"
 jspecify = "1.0.0"
 junitJupiter = "6.0.2"
+nullaway = "0.13.1"
+nullaway-plugin = "3.0.0"
 slf4j = "2.0.17"
 
 [libraries]
@@ -13,7 +17,11 @@ aws-cdk-lib = { module = "software.amazon.awscdk:aws-cdk-lib", version.ref = "aw
 aws-cdk-constructs = { module = "software.constructs:constructs", version.ref = "awsCdkConstructs" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSdk" }
 aws-sdk-lambda = { module = "software.amazon.awssdk:lambda", version.ref = "awsSdk" }
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone-core" }
+errorprone-gradle-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", version.ref = "errorprone-plugin" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 junit-jupiter-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
+nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
+nullaway-gradle-plugin = { module = "net.ltgt.gradle:gradle-nullaway-plugin", version.ref = "nullaway-plugin" }
 slf4j-bom = { module = "org.slf4j:slf4j-bom", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }

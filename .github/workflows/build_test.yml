@@ -40,8 +40,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        working-directory: ./my-lambda
+        working-directory: ./my-service
         run: gradle clean build
+
+      - name: Build System Test Module
+        working-directory: ./my-service-st
+        run: gradle clean build -x test
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@27d65e188ec43221b20d26de30f4892fad91df2f # v2.22.0
@@ -74,7 +78,7 @@ jobs:
         run: npm install -g aws-cdk
 
       - name: Build Application
-        working-directory: ./my-lambda
+        working-directory: ./my-service
         run: gradle -x test clean build
 
       - name: Build
