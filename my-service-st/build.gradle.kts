@@ -1,6 +1,7 @@
 plugins {
     java
     id("io.quarkus")
+    id("nullability-conventions")
 }
 
 repositories {

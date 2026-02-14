@@ -1,5 +1,6 @@
 plugins {
     id("io.quarkus")
+    id("nullability-conventions")
 }
 
 val quarkusPlatformGroupId: String by project
@@ -13,6 +14,7 @@ dependencies {
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-logging-json")
     implementation("io.quarkus:quarkus-jsonp")
+    implementation(libs.jspecify)
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation(libs.assertj.core)
