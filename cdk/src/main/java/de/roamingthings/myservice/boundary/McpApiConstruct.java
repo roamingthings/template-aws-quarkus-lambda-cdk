@@ -58,6 +58,10 @@ class McpApiConstruct extends Construct {
                 .retention(RetentionDays.ONE_WEEK)
                 .build();
 
+        var authorizedScopeNames = props.mcpScopes.stream()
+                .map(OAuthScope::getScopeName)
+                .toList();
+
         api = LambdaRestApi.Builder.create(this, "McpApi")
                 .handler(apiHandlerLiveAlias)
                 .restApiName(ConventionalDefaults.resourceName(props.appName, "McpApi"))
@@ -65,7 +69,7 @@ class McpApiConstruct extends Construct {
                 .defaultMethodOptions(MethodOptions.builder()
                         .authorizationType(AuthorizationType.COGNITO)
                         .authorizer(authorizer)
-                        .authorizationScopes(List.of(props.mcpScope.getScopeName()))
+                        .authorizationScopes(authorizedScopeNames)
                         .build())
                 .deployOptions(StageOptions.builder()
                         .accessLogDestination(new LogGroupLogDestination(apiAccessLogs))
@@ -100,7 +104,7 @@ class McpApiConstruct extends Construct {
             @Nullable IKey encryptionKey,
             IUserPool userPool,
             UserPoolClient userPoolClient,
-            OAuthScope mcpScope,
+            List<OAuthScope> mcpScopes,
             String cloudFrontDomainName
     ) {
     }

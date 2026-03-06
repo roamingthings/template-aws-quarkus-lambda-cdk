@@ -6,6 +6,7 @@ import de.roamingthings.encryption.control.ApplicationEncryptionKey;
 import de.roamingthings.function.control.QuarkusFunction;
 import software.amazon.awscdk.Aspects;
 import software.amazon.awscdk.CfnOutput;
+import software.amazon.awscdk.Duration;
 import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
@@ -19,15 +20,20 @@ import software.amazon.awscdk.services.cloudfront.CachePolicy;
 import software.amazon.awscdk.services.cloudfront.Distribution;
 import software.amazon.awscdk.services.cloudfront.OriginRequestPolicy;
 import software.amazon.awscdk.services.cloudfront.origins.HttpOrigin;
-import software.amazon.awscdk.services.cognito.CfnUserPoolResourceServer;
+import software.amazon.awscdk.services.cognito.AutoVerifiedAttrs;
+import software.amazon.awscdk.services.cognito.CfnUserPoolUser;
 import software.amazon.awscdk.services.cognito.Mfa;
 import software.amazon.awscdk.services.cognito.OAuthFlows;
 import software.amazon.awscdk.services.cognito.OAuthScope;
 import software.amazon.awscdk.services.cognito.OAuthSettings;
+import software.amazon.awscdk.services.cognito.ResourceServerScope;
+import software.amazon.awscdk.services.cognito.ResourceServerScopeProps;
 import software.amazon.awscdk.services.cognito.SignInAliases;
 import software.amazon.awscdk.services.cognito.UserPool;
 import software.amazon.awscdk.services.cognito.UserPoolClient;
+import software.amazon.awscdk.services.cognito.UserPoolClientOptions;
 import software.amazon.awscdk.services.cognito.UserPoolDomain;
+import software.amazon.awscdk.services.cognito.UserPoolResourceServer;
 import software.amazon.awscdk.services.kms.IKey;
 import software.amazon.awscdk.services.lambda.Alias;
 import software.amazon.awscdk.services.lambda.ApplicationLogLevel;
@@ -39,6 +45,7 @@ import software.amazon.awscdk.services.s3.deployment.BucketDeployment;
 import software.amazon.awscdk.services.s3.deployment.Source;
 import software.constructs.Construct;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +56,8 @@ public class MyServiceStack extends Stack {
 
     public static final List<String> MCP_CALLBACK_URLS = List.of(
             "http://localhost:9876/callback",
-            "https://claude.ai/api/mcp/auth_callback"
+            "https://claude.ai/api/mcp/auth_callback",
+            "https://chatgpt.com/connector_platform_oauth_redirect"
     );
 
     public MyServiceStack(Construct scope, String id, MyServiceStackProps props) {
@@ -69,8 +77,9 @@ public class MyServiceStack extends Stack {
         var cloudFrontDomainName = frontend.distribution().getDistributionDomainName();
 
         var userPool = createUserPool(props.appName);
-        var mcpScope = createMcpResourceServerScope(userPool, cloudFrontDomainName, props.appName);
-        var agentClient = createAgentUserPoolClient(userPool, mcpScope);
+        createTestUser(userPool);
+        var mcpScopes = createMcpResourceServerScopes(userPool, cloudFrontDomainName, props.appName);
+        var agentClient = createAgentUserPoolClient(userPool, mcpScopes, props.appName);
         var userPoolDomain = createUserPoolDomain(userPool, props.appName);
 
         var mcpApi = new McpApiConstruct(this, "McpApi", new McpApiConstruct.McpApiConstructProps(
@@ -78,7 +87,7 @@ public class MyServiceStack extends Stack {
                 encryptionKey,
                 userPool,
                 agentClient,
-                mcpScope,
+                mcpScopes,
                 cloudFrontDomainName
         ));
 
@@ -143,36 +152,59 @@ public class MyServiceStack extends Stack {
                 .userPoolName(ConventionalDefaults.resourceName(appName, "UserPool"))
                 .selfSignUpEnabled(false)
                 .signInAliases(SignInAliases.builder().email(true).build())
+                .autoVerify(AutoVerifiedAttrs.builder().email(true).build())
                 .mfa(Mfa.OPTIONAL)
                 .removalPolicy(RemovalPolicy.DESTROY)
                 .build();
     }
 
-    OAuthScope createMcpResourceServerScope(UserPool userPool, String cloudFrontDomainName, String appName) {
+    List<OAuthScope> createMcpResourceServerScopes(UserPool userPool, String cloudFrontDomainName, String appName) {
+        // Agents uses this scope to connect to the MCP Server
+        var connectScope = new ResourceServerScope(ResourceServerScopeProps.builder()
+                .scopeName("connect")
+                .scopeDescription("MCP server access")
+                .build()
+        );
         var resourceServerIdentifier = "https://" + cloudFrontDomainName;
-        var scopeName = "connect";
-        var cfnResourceServer = CfnUserPoolResourceServer.Builder.create(this, "McpResourceServer")
-                .userPoolId(userPool.getUserPoolId())
+        var mcpResourceServer = UserPoolResourceServer.Builder.create(this, "McpResourceServer")
+                .userPoolResourceServerName(appName + "McpResource")
                 .identifier(resourceServerIdentifier)
-                .name(ConventionalDefaults.resourceName(appName, "McpResource"))
-                .scopes(List.of(CfnUserPoolResourceServer.ResourceServerScopeTypeProperty.builder()
-                        .scopeName(scopeName)
-                        .scopeDescription("MCP server access")
-                        .build()))
+                .userPool(userPool)
+                .scopes(List.of(connectScope))
                 .build();
-        return OAuthScope.custom(cfnResourceServer.getRef() + "/" + scopeName);
+        return List.of(OAuthScope.resourceServer(mcpResourceServer, connectScope));
     }
 
-    UserPoolClient createAgentUserPoolClient(UserPool userPool, OAuthScope mcpScope) {
-        return userPool.addClient("AgentUserPoolClient", software.amazon.awscdk.services.cognito.UserPoolClientOptions.builder()
+    UserPoolClient createAgentUserPoolClient(UserPool userPool, List<OAuthScope> mcpScopes, String appName) {
+        var scopes = new ArrayList<>(List.of(
+                OAuthScope.OPENID,
+                OAuthScope.PROFILE,
+                OAuthScope.EMAIL
+        ));
+        scopes.addAll(mcpScopes);
+        return userPool.addClient("AgentUserPoolClient", UserPoolClientOptions.builder()
+                .userPoolClientName(ConventionalDefaults.resourceName(appName, "AgentUserPoolClient"))
                 .generateSecret(false)
                 .oAuth(OAuthSettings.builder()
                         .flows(OAuthFlows.builder().authorizationCodeGrant(true).build())
-                        .scopes(List.of(OAuthScope.OPENID, OAuthScope.EMAIL, mcpScope))
+                        .scopes(scopes)
                         .callbackUrls(MCP_CALLBACK_URLS)
-                        .logoutUrls(MCP_CALLBACK_URLS)
                         .build())
+                .accessTokenValidity(Duration.hours(1))
+                .refreshTokenValidity(Duration.days(30))
                 .build());
+    }
+
+    void createTestUser(UserPool userPool) {
+        CfnUserPoolUser.Builder.create(this, "TestUser")
+                .userPoolId(userPool.getUserPoolId())
+                .username("demo@example.com")
+                .userAttributes(List.of(
+                        Map.of("name", "email", "value", "demo@example.com"),
+                        Map.of("name", "email_verified", "value", "true")
+                ))
+                .messageAction("SUPPRESS")
+                .build();
     }
 
     UserPoolDomain createUserPoolDomain(UserPool userPool, String appName) {
