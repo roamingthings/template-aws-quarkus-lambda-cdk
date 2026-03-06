@@ -12,6 +12,7 @@ Fork this repository to bootstrap serverless applications with:
 
 - Lambda handlers using Quarkus (SnapStart enabled, ARM64 architecture)
 - Infrastructure as code with AWS CDK in Java
+- MCP server with OAuth2/Cognito authentication via CloudFront
 - BCE/ECB architecture for maintainable business logic
 - Independent modules for application, infrastructure, and system tests
 
@@ -39,7 +40,7 @@ Or provide a local `./app.properties` file in the project root (takes precedence
 
 Three independent Gradle builds:
 
-- **my-service/** - Application module with Quarkus handlers and shared libraries
+- **my-service/** - Application module with Quarkus handlers (Lambda, API, MCP) and shared libraries
 - **cdk/** - Infrastructure module with AWS CDK stacks
 - **my-service-st/** - System tests module for end-to-end testing
 
@@ -170,6 +171,20 @@ The template provisions:
 
 Function naming follows: `{appName}-{resourceName}` convention
 Stack naming follows: `{appName}-{stackName}-stack` convention
+
+## MCP Server
+
+The template includes an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server handler at `my-service/handlers/mcp/`, built with [Quarkus MCP Server](https://docs.quarkiverse.io/quarkus-mcp-server/dev/index.html). MCP tools are defined as CDI beans annotated with `@Tool`.
+
+Infrastructure provisions:
+
+- **Dedicated API Gateway** for MCP traffic, routed through CloudFront under `/mcp*`
+- **Cognito User Pool** with OAuth2 authorization code flow
+- **Resource Server** with a `connect` scope for agent access
+- **OAuth Protected Resource metadata** served at `/.well-known/oauth-protected-resource`
+- **`WWW-Authenticate` header** on 401 responses pointing to the resource metadata URL
+
+Pre-configured callback URLs support Claude Desktop, ChatGPT, and local development.
 
 ## Nullability Enforcement
 

@@ -21,6 +21,6 @@ class GreeterResourceTest {
                 .post("/greet")
                 .then()
                 .statusCode(200)
-                .body(containsString("{\"message\":\"hello, Quarkus on BCE\"}"));
+                .body(containsString("{\"message\":\"hello, Test Item Quarkus on BCE\"}"));
     }
 }

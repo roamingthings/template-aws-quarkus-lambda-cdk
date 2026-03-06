@@ -55,4 +55,6 @@ fabric.properties
 *.iml
 
 *.local.*
+*.private.*
+!*.private.*sample
 !*.local.*sample

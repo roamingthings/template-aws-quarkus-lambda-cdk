@@ -9,6 +9,7 @@ jspecify = "1.0.0"
 junitJupiter = "6.0.3"
 nullaway = "0.13.1"
 nullaway-plugin = "3.0.0"
+quarkivers-mcp = "1.10.2"
 slf4j = "2.0.17"
 
 [libraries]
@@ -23,5 +24,6 @@ jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 junit-jupiter-bom = { module = "org.junit:junit-bom", version.ref = "junitJupiter" }
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 nullaway-gradle-plugin = { module = "net.ltgt.gradle:gradle-nullaway-plugin", version.ref = "nullaway-plugin" }
+quarkiverse-mcp = { module = "io.quarkiverse.mcp:quarkus-mcp-server-http", version.ref = "quarkivers-mcp" }
 slf4j-bom = { module = "org.slf4j:slf4j-bom", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }

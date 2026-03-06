@@ -12,7 +12,7 @@ public class Greeter {
     static System.Logger LOG = System.getLogger(Greeter.class.getName());
 
     @Inject
-    @ConfigProperty(defaultValue = "hello, Quarkus on BCE", name="message")
+    @ConfigProperty(defaultValue = "hello, %s Quarkus on BCE", name="message")
     String message;
 
     public String greetings() {
@@ -20,7 +20,8 @@ public class Greeter {
         return this.message;
     }
 
-    public void greetings(String userMessage) {
+    public String greetings(String userMessage) {
         LOG.log(INFO, "received: " + userMessage);
+        return message.formatted(userMessage);
     }
 }

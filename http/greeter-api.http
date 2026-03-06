@@ -1,0 +1,5 @@
+### Greet
+POST {{baseUrl}}/api/greet
+Content-Type: application/json
+
+{"id": "1", "name": "World", "description": "test"}
