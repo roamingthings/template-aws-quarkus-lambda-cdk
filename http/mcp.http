@@ -1,0 +1,34 @@
+### Initialize MCP session
+POST {{baseUrl}}/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+
+{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2025-03-26", "capabilities": {}, "clientInfo": {"name": "http-client", "version": "1.0"}}, "id": 0}
+
+> {%
+    client.global.set("mcpSessionId", response.headers.valueOf("Mcp-Session-Id"));
+%}
+
+### Send initialized notification
+POST {{baseUrl}}/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: {{mcpSessionId}}
+
+{"jsonrpc": "2.0", "method": "notifications/initialized"}
+
+### List tools
+POST {{baseUrl}}/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: {{mcpSessionId}}
+
+{"jsonrpc": "2.0", "method": "tools/list", "id": 1}
+
+### Call greet tool
+POST {{baseUrl}}/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: {{mcpSessionId}}
+
+{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "greet", "arguments": {"name": "World"}}, "id": 2}

@@ -21,7 +21,7 @@ public class GreeterResource {
 
     @POST
     public GreetingMessage greet(Item input) {
-        this.greeter.greetings(input.name());
-        return new GreetingMessage(this.greeter.greetings());
+        this.greeter.greetings();
+        return new GreetingMessage(this.greeter.greetings(input.name()));
     }
 }

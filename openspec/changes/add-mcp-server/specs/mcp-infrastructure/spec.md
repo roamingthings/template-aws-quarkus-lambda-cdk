@@ -66,7 +66,7 @@ The stack SHALL deploy a `.well-known/oauth-protected-resource` JSON document to
 - **THEN** a JSON document is returned with the Cognito issuer URL
 
 ### Requirement: Stack outputs
-The stack SHALL export: `UserPoolId`, `ClaudeUserPoolClientId`, `CloudFrontUrl`, `CloudFrontDistributionId`, `CognitoHostedUiDomain`, `McpApiHandlerFunctionArn`, `McpApiGatewayUrl`.
+The stack SHALL export: `UserPoolId`, `AgentUserPoolClientId`, `CloudFrontUrl`, `CloudFrontDistributionId`, `CognitoHostedUiDomain`, `McpApiHandlerFunctionArn`, `McpApiGatewayUrl`.
 
 #### Scenario: Outputs are available after deployment
 - **WHEN** the stack is deployed
@@ -85,7 +85,7 @@ A `docs/mcp-setup.md` document SHALL describe how to connect Claude Code to the 
 #### Scenario: Developer follows documentation to connect Claude Code
 - **WHEN** a developer reads `docs/mcp-setup.md` after deployment
 - **THEN** the document provides the `aws cloudformation describe-stacks` command to retrieve outputs
-- **THEN** the document provides the `claude mcp add` command with placeholders for `ClaudeUserPoolClientId` and `CloudFrontDomain`
+- **THEN** the document provides the `claude mcp add` command with placeholders for `AgentUserPoolClientId` and `CloudFrontDomain`
 
 ### Requirement: Gradle settings include MCP module
 The `my-service/settings.gradle.kts` SHALL include `handlers:mcp` in the build.
