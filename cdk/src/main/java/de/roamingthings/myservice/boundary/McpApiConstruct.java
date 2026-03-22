@@ -40,7 +40,7 @@ class McpApiConstruct extends Construct {
                 QuarkusFunction.QuarkusLambdaFunctionProps.builder()
                         .functionName(ConventionalDefaults.resourceName(props.appName, "McpHandler"))
                         .description("MCP server handler")
-                        .modulePath("../my-service/handlers/mcp")
+                        .modulePath("../my-service/handlers/greeter-mcp")
                         .buildTool(QuarkusFunction.BuildTool.GRADLE)
                         .applicationLogLevel(ApplicationLogLevel.DEBUG)
                         .systemLogLevel(SystemLogLevel.INFO)
