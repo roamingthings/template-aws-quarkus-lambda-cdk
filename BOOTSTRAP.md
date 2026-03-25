@@ -145,6 +145,7 @@ Replace `group = "de.roamingthings"` with `group = "{GRADLE_GROUP}"` in:
 **`cdk/src/main/java/.../CdkApp.java`:**
 - Change `APP_NAME = "my-service"` to `APP_NAME = "{PROJECT_NAME}"`
 - Change `Tags.of(app).add("project", "template-aws-quarkus-lambda-cdk")` to use `{PROJECT_NAME}`
+- Change `Tags.of(app).add("environment", "templates")` to a sensible default (e.g., `"dev"`)
 - Update import of `MyServiceStack` to `{STACK_CLASS}`
 - Update constructor call: `new MyServiceStack(...)` → `new {STACK_CLASS}(...)`
 - Update `"MyServiceStack"` CDK ID string to `"{STACK_CLASS}"`
