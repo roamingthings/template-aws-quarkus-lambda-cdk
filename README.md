@@ -174,7 +174,7 @@ Stack naming follows: `{appName}-{stackName}-stack` convention
 
 ## MCP Server
 
-The template includes an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server handler at `my-service/handlers/mcp/`, built with [Quarkus MCP Server](https://docs.quarkiverse.io/quarkus-mcp-server/dev/index.html). MCP tools are defined as CDI beans annotated with `@Tool`.
+The template includes an [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server handler at `my-service/handlers/greeter-mcp/`, built with [Quarkus MCP Server](https://docs.quarkiverse.io/quarkus-mcp-server/dev/index.html). MCP tools are defined as CDI beans annotated with `@Tool`.
 
 Infrastructure provisions:
 
