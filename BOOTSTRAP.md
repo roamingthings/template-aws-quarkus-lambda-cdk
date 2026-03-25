@@ -156,6 +156,9 @@ Replace `group = "de.roamingthings"` with `group = "{GRADLE_GROUP}"` in:
 - Rename class to `{STACK_CLASS}`
 - Rename inner record to `{STACK_PROPS_CLASS}`
 - Update constructor and all references
+- Rename CDK construct IDs that contain "MyService" (this is a new project with no existing deployment,
+  so construct IDs are safe to rename). For example:
+  - `"MyServiceGreeterApi"` → `"{PROJECT_NAME_PASCAL}GreeterApi"` (e.g., `"InventoryServiceGreeterApi"`)
 
 **`cdk/build.gradle.kts`:**
 - Update `mainClass.set("de.roamingthings.CdkApp")` to `mainClass.set("{APP_PACKAGE}.CdkApp")`
