@@ -279,7 +279,18 @@ If the user chose not to keep the shared module:
 3. **Update system tests** (`{PROJECT_NAME}-st/`) — the ST module has its own copy of model classes
    and does not depend on shared-model, so no changes needed there.
 
-### Step 13: Update CI/CD and Scripts
+### Step 13: Update System Test Config Keys
+
+The system test module uses a REST client config key `"myservice"` that must be renamed:
+
+- In `{PROJECT_NAME}-st/src/main/java/.../GreetingsResourceClient.java`:
+  change `@RegisterRestClient(configKey = "myservice")` to `configKey = "{PROJECT_NAME_NO_HYPHENS}"` (e.g., `"flowers"` or `"inventoryservice"`)
+- In `{PROJECT_NAME}-st/src/main/resources/application.properties`:
+  change `quarkus.rest-client.myservice.url` to `quarkus.rest-client.{PROJECT_NAME_NO_HYPHENS}.url`
+- In `{PROJECT_NAME}-st/src/test/java/.../GreetingsResourceIT.java`:
+  change `@ConfigProperty(name = "quarkus.rest-client.myservice.url")` to match the new config key
+
+### Step 14: Update CI/CD and Scripts
 
 **`.github/workflows/`** — update all workflow files that reference `my-service`:
 - Replace `./my-service` with `./{PROJECT_NAME}` in `working-directory` fields
@@ -287,7 +298,7 @@ If the user chose not to keep the shared module:
 
 **`buildAndDeployDontAsk.sh`** — replace `my-service` references with `{PROJECT_NAME}`.
 
-### Step 14: Update README.md
+### Step 15: Update README.md
 
 - Replace title with project name
 - Remove references to unselected handlers
@@ -296,20 +307,20 @@ If the user chose not to keep the shared module:
 - Remove the "Using This Template with Coding Agents" section (no longer a template)
 - Remove reference to `BOOTSTRAP.md`
 
-### Step 15: Clean Up Template Files
+### Step 16: Clean Up Template Files
 
 - Delete `BOOTSTRAP.md` (this file)
 - Delete the `openspec/` directory if present (template development artifacts)
 - Update `CLAUDE.md` — remove any bootstrap-related instructions, keep only `@AGENTS.md`
 
-### Step 16: Create Initial Commit
+### Step 17: Create Initial Commit
 
 ```bash
 git add .
 git commit -m "feat: initialize {PROJECT_NAME} from template"
 ```
 
-### Step 17: Verify Build
+### Step 18: Verify Build
 
 Run the build to verify everything compiles:
 
