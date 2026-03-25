@@ -189,6 +189,10 @@ Rename all Java source directories and update package declarations and imports.
 2. `de.roamingthings.shared` → `{APP_PACKAGE without last segment}.shared` (e.g., `com.acme.shared`)
 3. `de.roamingthings` → `{APP_PACKAGE}` (CDK root classes — least specific last)
 
+**Also update non-Java files** that contain package references:
+- `application.properties` files — update log category names (e.g., `de.roamingthings.myservice` → `{APP_PACKAGE}`)
+- `docs/project-structure.md` — update package examples or delete the file
+
 **Move source files** to match new package paths in:
 - `{PROJECT_NAME}/handlers/*/src/main/java/`
 - `{PROJECT_NAME}/handlers/*/src/test/java/`
@@ -271,9 +275,13 @@ If the user chose not to keep the shared module:
 3. **Update system tests** (`{PROJECT_NAME}-st/`) — the ST module has its own copy of model classes
    and does not depend on shared-model, so no changes needed there.
 
-### Step 13: Update `buildAndDeployDontAsk.sh`
+### Step 13: Update CI/CD and Scripts
 
-Replace `my-service` references with `{PROJECT_NAME}`.
+**`.github/workflows/`** — update all workflow files that reference `my-service`:
+- Replace `./my-service` with `./{PROJECT_NAME}` in `working-directory` fields
+- Replace `./my-service-st` with `./{PROJECT_NAME}-st` in `working-directory` fields
+
+**`buildAndDeployDontAsk.sh`** — replace `my-service` references with `{PROJECT_NAME}`.
 
 ### Step 14: Update README.md
 
