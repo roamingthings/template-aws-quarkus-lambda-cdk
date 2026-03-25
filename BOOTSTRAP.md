@@ -19,16 +19,32 @@ Set up a new service using https://github.com/roamingthings/template-aws-quarkus
 
 The agent will clone the template, read this file, and walk you through the setup.
 
+### Cloning into a Non-Empty Directory
+
+When the user starts Claude Code in an empty directory, the `.claude/` configuration directory is created
+automatically before the agent runs. This means `git clone <url> .` will fail because the directory is not empty.
+
+**Workaround:** Clone into a temporary subdirectory and move the contents:
+
+```bash
+git clone <url> .bootstrap-tmp
+mv .bootstrap-tmp/* .bootstrap-tmp/.* . 2>/dev/null
+rm -rf .bootstrap-tmp
+```
+
+Then continue with the bootstrapping steps.
+
 ## Questions to Ask
 
-Gather the following from the user before making any changes. Suggest sensible defaults where noted.
+Gather the following from the user before making any changes. Present all questions together in a single message.
 
 | # | Question | Example | Default | Validation |
 |---|----------|---------|---------|------------|
 | 1 | **Project name** (kebab-case, used for directories, CDK app name, resource naming) | `inventory-service` | — | Must be kebab-case, no underscores |
-| 2 | **Organization domain package** (reverse domain for Java packages) | `com.acme` | `de.roamingthings` | Valid Java package segments |
-| 3 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
-| 4 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
+| 2 | **Java base package** (the application-level package for all handler code) | `com.acme.inventory` | — | Valid Java package segments |
+| 3 | **Gradle group** (the Maven/Gradle group ID for the project) | `com.acme` | Same as base package | Valid Java package segments |
+| 4 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
+| 5 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
 
 ### Handler Options
 
@@ -42,15 +58,31 @@ Gather the following from the user before making any changes. Suggest sensible d
 
 Calculate these from the user's answers — do not ask for them separately.
 
-| Value | Derivation | Example |
+> **IMPORTANT — Package naming:** The Java base package provided by the user IS the application package.
+> Do NOT append the project name to it. For example, if the user says base package `de.roamingthings.flowers`
+> and project name `flowers`, the application package is `de.roamingthings.flowers` — NOT
+> `de.roamingthings.flowers.flowers`.
+
+| Value | Derivation | Example (project: `inventory-service`, base package: `com.acme.inventory`, group: `com.acme`) |
 |-------|-----------|---------|
-| `APP_PACKAGE` | Organization domain + project name without hyphens | `com.acme.inventoryservice` |
-| `APP_PACKAGE_PATH` | `APP_PACKAGE` with dots replaced by `/` | `com/acme/inventoryservice` |
-| `ORG_PACKAGE_PATH` | Organization domain with dots replaced by `/` | `com/acme` |
+| `APP_PACKAGE` | The Java base package as provided by the user | `com.acme.inventory` |
+| `APP_PACKAGE_PATH` | `APP_PACKAGE` with dots replaced by `/` | `com/acme/inventory` |
+| `GRADLE_GROUP` | The Gradle group as provided (or defaults to `APP_PACKAGE`) | `com.acme` |
 | `STACK_CLASS` | Project name in PascalCase + `Stack` | `InventoryServiceStack` |
 | `STACK_PROPS_CLASS` | `STACK_CLASS` + `Props` | `InventoryServiceStackProps` |
-| `CDK_APP_CLASS` | Always `CdkApp` (does not change) | `CdkApp` |
-| `ROOT_PROJECT_NAME` | `template-aws-quarkus-lambda-cdk` replaced with project name | `inventory-service` |
+
+**Show the user a confirmation summary** with all derived values before making any changes. Example:
+
+```
+Project name:       inventory-service
+Java base package:  com.acme.inventory
+Gradle group:       com.acme
+Handlers:           REST API, MCP Server
+Shared module:      keep
+Stack class:        InventoryServiceStack
+
+Proceed? (yes/no)
+```
 
 ## Transformation Steps
 
@@ -102,7 +134,7 @@ rootProject.name = "{PROJECT_NAME}-st"
 
 ### Step 6: Update Gradle `group` in All `build.gradle.kts`
 
-Replace `group = "de.roamingthings"` with `group = "{ORG_PACKAGE}"` in:
+Replace `group = "de.roamingthings"` with `group = "{GRADLE_GROUP}"` in:
 
 - `{PROJECT_NAME}/build.gradle.kts`
 - `cdk/build.gradle.kts`
@@ -125,27 +157,37 @@ Replace `group = "de.roamingthings"` with `group = "{ORG_PACKAGE}"` in:
 - Update constructor and all references
 
 **`cdk/build.gradle.kts`:**
-- Update `mainClass.set("de.roamingthings.CdkApp")` to `mainClass.set("{ORG_PACKAGE}.CdkApp")`
+- Update `mainClass.set("de.roamingthings.CdkApp")` to `mainClass.set("{APP_PACKAGE}.CdkApp")`
+
+Note: CDK root-level classes (`CdkApp`, `Configuration`, `ConventionalDefaults`, etc.) use the application
+package, not a separate CDK package.
 
 ### Step 8: Rename Java Packages
 
 Rename all Java source directories and update package declarations and imports.
+
+> **CRITICAL — Replacement order matters.** Always replace the most specific patterns first to avoid
+> double-replacement. For example, replace `de.roamingthings.myservice` before `de.roamingthings`,
+> otherwise `de.roamingthings.myservice` would become `{APP_PACKAGE}.myservice` instead of `{APP_PACKAGE}`.
+
+> **CRITICAL — Moving files safely.** When moving files from old package directories to new ones,
+> first create the new directory structure, then copy/move files, then delete ONLY the old directories
+> that are now empty. Never use recursive delete (`rm -rf`) on a parent directory that contains both
+> old and new paths (e.g., if old is `de/roamingthings/myservice/` and new is `de/roamingthings/flowers/`,
+> do NOT `rm -rf de/roamingthings/` as it would delete the new path too).
 
 **Source package mapping:**
 
 | Old | New |
 |-----|-----|
 | `de/roamingthings/myservice/` | `{APP_PACKAGE_PATH}/` |
-| `de/roamingthings/shared/` | `{ORG_PACKAGE_PATH}/shared/` |
-| `de/roamingthings/` (CDK root classes) | `{ORG_PACKAGE_PATH}/` |
+| `de/roamingthings/shared/` | `{APP_PACKAGE_PATH}/../shared/` (keep under same parent as app package) |
+| `de/roamingthings/` (CDK root classes only) | `{APP_PACKAGE_PATH}/` |
 
-**In all `.java` files**, replace:
-- `package de.roamingthings.myservice` → `package {APP_PACKAGE}`
-- `package de.roamingthings.shared` → `package {ORG_PACKAGE}.shared`
-- `package de.roamingthings` → `package {ORG_PACKAGE}`
-- `import de.roamingthings.myservice` → `import {APP_PACKAGE}`
-- `import de.roamingthings.shared` → `import {ORG_PACKAGE}.shared`
-- `import de.roamingthings` → `import {ORG_PACKAGE}`
+**In all `.java` files**, replace in this exact order:
+1. `de.roamingthings.myservice` → `{APP_PACKAGE}` (most specific first)
+2. `de.roamingthings.shared` → `{APP_PACKAGE without last segment}.shared` (e.g., `com.acme.shared`)
+3. `de.roamingthings` → `{APP_PACKAGE}` (CDK root classes — least specific last)
 
 **Move source files** to match new package paths in:
 - `{PROJECT_NAME}/handlers/*/src/main/java/`
@@ -155,7 +197,7 @@ Rename all Java source directories and update package declarations and imports.
 - `{PROJECT_NAME}-st/src/test/java/`
 - `cdk/src/main/java/`
 
-After moving, delete the empty old package directories (`de/roamingthings/`).
+After moving, verify new directories are correct, then delete only the empty old package directories.
 
 ### Step 9: Update CDK Module Paths
 
@@ -245,7 +287,8 @@ Replace `my-service` references with `{PROJECT_NAME}`.
 ### Step 15: Clean Up Template Files
 
 - Delete `BOOTSTRAP.md` (this file)
-- Update `CLAUDE.md` — remove any bootstrap-related instructions
+- Delete the `openspec/` directory if present (template development artifacts)
+- Update `CLAUDE.md` — remove any bootstrap-related instructions, keep only `@AGENTS.md`
 
 ### Step 16: Create Initial Commit
 
