@@ -99,17 +99,17 @@ git init
 
 ### Step 2: Rename Service Directories
 
+Run all four commands — the `rm -rf` lines are required because Gradle `.gradle/` cache directories
+inside `my-service/` and `my-service-st/` survive the `mv` and leave empty husks behind:
+
 ```bash
 mv my-service {PROJECT_NAME}
 mv my-service-st {PROJECT_NAME}-st
+rm -rf my-service
+rm -rf my-service-st
 ```
 
-**Important:** After renaming, delete any leftover empty `my-service/` or `my-service-st/` directories
-(Gradle may have created `.gradle/` cache directories inside them that prevent `mv` from fully removing them):
-
-```bash
-rm -rf my-service my-service-st
-```
+Verify afterwards that `my-service/` and `my-service-st/` no longer exist.
 
 ### Step 3: Update Root `settings.gradle.kts`
 
