@@ -99,9 +99,16 @@ git init
 
 ### Step 2: Rename Service Directories
 
+```bash
+mv my-service {PROJECT_NAME}
+mv my-service-st {PROJECT_NAME}-st
 ```
-my-service/        → {PROJECT_NAME}/
-my-service-st/     → {PROJECT_NAME}-st/
+
+**Important:** After renaming, delete any leftover empty `my-service/` or `my-service-st/` directories
+(Gradle may have created `.gradle/` cache directories inside them that prevent `mv` from fully removing them):
+
+```bash
+rm -rf my-service my-service-st
 ```
 
 ### Step 3: Update Root `settings.gradle.kts`
@@ -311,7 +318,10 @@ The system test module uses a REST client config key `"myservice"` that must be 
 
 - Delete `BOOTSTRAP.md` (this file)
 - Delete the `openspec/` directory if present (template development artifacts)
+- Delete `.claude/skills/bootstrap/` directory (the bootstrap skill is no longer needed)
 - Update `CLAUDE.md` — remove any bootstrap-related instructions, keep only `@AGENTS.md`
+- Update `docs/project-structure.md` — replace generic `com.example` placeholder paths with actual
+  project package paths, or delete the file if it no longer accurately describes the project structure
 
 ### Step 17: Create Initial Commit
 
