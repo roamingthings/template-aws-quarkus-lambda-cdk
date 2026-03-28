@@ -1,38 +1,40 @@
 # Bootstrapping a New Project from This Template
 
-This document provides instructions for AI coding agents (Claude Code, Cursor, etc.) to scaffold a new project
-from this template. It can also be used as a manual reference.
+This document provides the complete specification for AI coding agents (Claude Code, Cursor, Windsurf, etc.)
+to scaffold a new project from this template. It can also be used as a manual reference.
 
-## Usage
+## Agent Instructions
 
-**From within the cloned template:**
+### Interaction Flow
 
-```
-/bootstrap
-```
+1. Read this entire file before starting.
+2. Ask all questions from the "Questions to Ask" section in a single message,
+   presenting the options clearly with defaults noted.
+3. Wait for the user's answers before making any changes.
+4. Calculate the derived values from the user's responses.
+5. Show the user a confirmation summary with all values and derived values.
+   Ask for explicit confirmation before proceeding.
+6. Execute the **Transformation Steps** in order.
+7. After all transformations, verify the build compiles.
+8. Present the **Post-Setup Guidance** to the user.
 
-**From an empty directory (Claude Code):**
+### Getting the Template Files
 
-```
-Set up a new service using https://github.com/roamingthings/template-aws-quarkus-lambda-cdk
-```
+If you are running in an empty directory (not a cloned copy of the template):
 
-The agent will clone the template, read this file, and walk you through the setup.
+1. Clone the template into a temporary subdirectory:
+   ```bash
+   git clone https://github.com/roamingthings/template-aws-quarkus-lambda-cdk .bootstrap-tmp
+   ```
+2. Move all contents (including dotfiles) into the current directory:
+   ```bash
+   mv .bootstrap-tmp/* .bootstrap-tmp/.* . 2>/dev/null
+   rm -rf .bootstrap-tmp
+   ```
+3. Then proceed with the Transformation Steps below.
 
-### Cloning into a Non-Empty Directory
-
-When the user starts Claude Code in an empty directory, the `.claude/` configuration directory is created
-automatically before the agent runs. This means `git clone <url> .` will fail because the directory is not empty.
-
-**Workaround:** Clone into a temporary subdirectory and move the contents:
-
-```bash
-git clone <url> .bootstrap-tmp
-mv .bootstrap-tmp/* .bootstrap-tmp/.* . 2>/dev/null
-rm -rf .bootstrap-tmp
-```
-
-Then continue with the bootstrapping steps.
+If you are already inside a cloned copy of the template, skip directly to
+the Transformation Steps.
 
 ## Questions to Ask
 
@@ -318,8 +320,11 @@ The system test module uses a REST client config key `"myservice"` that must be 
 
 - Delete `BOOTSTRAP.md` (this file)
 - Delete the `openspec/` directory if present (template development artifacts)
-- Delete `.claude/skills/bootstrap/` directory (the bootstrap skill is no longer needed)
-- Update `CLAUDE.md` — remove any bootstrap-related instructions, keep only `@AGENTS.md`
+- Delete the `.claude/` directory (contains template-specific skills and settings not needed in the bootstrapped project)
+- Rewrite `CLAUDE.md` to contain only:
+  ```
+  @AGENTS.md
+  ```
 - Update `docs/project-structure.md` — replace generic `com.example` placeholder paths with actual
   project package paths, or delete the file if it no longer accurately describes the project structure
 
