@@ -243,6 +243,10 @@ In `{STACK_CLASS}.java` and `McpApiConstruct.java`, update Lambda function modul
 **`cdk/cdk.json`:**
 - The `"app"` command (`"../gradlew run --console=plain"`) does not change (gradlew stays at root)
 
+**`docs/mcp-setup.md`:**
+- Replace `MyServiceStack` with `{STACK_CLASS}` (in prose and in `--stack-name` argument)
+- Replace `my-service-mcp` with `{PROJECT_NAME}` in the `claude mcp add` command
+
 ### Step 11: Remove Unselected Handlers
 
 For each handler **not** selected by the user:
@@ -259,6 +263,7 @@ For each handler **not** selected by the user:
 - Remove `greeterApiHandlerFunction` variable and related `CfnOutput` entries
 - Remove `/api/*` CloudFront behavior
 - In `{PROJECT_NAME}-st/`: remove `GreetingsResourceClient.java`, `GreetingsResourceIT.java`, and related entities
+- In `{PROJECT_NAME}-st/src/test/resources/application.properties`: remove the `quarkus.log.category."...greetings.boundary"` line (it belongs to the REST API handler)
 
 **If MCP Server is removed:**
 - Delete `{PROJECT_NAME}/handlers/greeter-mcp/`
@@ -267,6 +272,7 @@ For each handler **not** selected by the user:
 - Delete `OAuthFrontendConstruct.java`
 - Remove Cognito/MCP-related `CfnOutput` entries
 - Remove MCP section from README
+- Delete `docs/mcp-setup.md`
 
 **If only one handler remains and it is the REST API:**
 - The CloudFront distribution, `OAuthFrontendConstruct`, and S3 frontend are only needed for MCP. If MCP is removed, the REST API can be served directly via API Gateway without CloudFront.
