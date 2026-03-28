@@ -42,11 +42,12 @@ Gather the following from the user before making any changes. Present all questi
 
 | # | Question | Example | Default | Validation |
 |---|----------|---------|---------|------------|
-| 1 | **Project name** (kebab-case, used for directories, CDK app name, resource naming) | `inventory-service` | — | Must be kebab-case, no underscores |
-| 2 | **Java base package** (the application-level package for all handler code) | `com.acme.inventory` | — | Valid Java package segments |
-| 3 | **Gradle group** (the Maven/Gradle group ID for the project) | `com.acme` | Same as base package | Valid Java package segments |
-| 4 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
-| 5 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
+| 1 | **Root project name** (kebab-case, used for `rootProject.name` in the root `settings.gradle.kts`) | `acme-inventory` | Same as project name | Must be kebab-case, no underscores |
+| 2 | **Project name** (kebab-case, used for service directories, CDK app name, resource naming) | `inventory-service` | — | Must be kebab-case, no underscores |
+| 3 | **Java base package** (the application-level package for all handler code) | `com.acme.inventory` | — | Valid Java package segments |
+| 4 | **Gradle group** (the Maven/Gradle group ID for the project) | `com.acme` | Same as base package | Valid Java package segments |
+| 5 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
+| 6 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
 
 ### Handler Options
 
@@ -76,6 +77,7 @@ Calculate these from the user's answers — do not ask for them separately.
 **Show the user a confirmation summary** with all derived values before making any changes. Example:
 
 ```
+Root project name:  acme-inventory
 Project name:       inventory-service
 Java base package:  com.acme.inventory
 Gradle group:       com.acme
@@ -116,7 +118,7 @@ Verify afterwards that `my-service/` and `my-service-st/` no longer exist.
 ### Step 3: Update Root `settings.gradle.kts`
 
 ```kotlin
-rootProject.name = "{PROJECT_NAME}"
+rootProject.name = "{ROOT_PROJECT_NAME}"
 
 includeBuild("{PROJECT_NAME}")
 includeBuild("cdk")
