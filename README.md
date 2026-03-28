@@ -98,29 +98,23 @@ cd my-service-st
 
 ## Using This Template
 
-### Quick Start with Claude Code
+To bootstrap a new project from this template, point your AI coding agent to this repository and have it
+read [BOOTSTRAP.md](https://github.com/roamingthings/template-aws-quarkus-lambda-cdk/blob/main/BOOTSTRAP.md),
+which contains the complete scaffolding specification including questions to gather, transformation steps,
+and cleanup.
 
-Clone the template and run the interactive bootstrap:
-
-```bash
-git clone https://github.com/roamingthings/template-aws-quarkus-lambda-cdk my-project
-cd my-project
-claude
-# then type: /bootstrap
-```
-
-Or from an empty directory:
+### Example (Claude Code)
 
 ```bash
 mkdir my-project && cd my-project
 claude
-# then type: Set up a new service using https://github.com/roamingthings/template-aws-quarkus-lambda-cdk
+# then type: Bootstrap this project from https://github.com/roamingthings/template-aws-quarkus-lambda-cdk
 ```
 
-The bootstrap process asks for your project name, organization package, and which handlers to include, then
-renames directories, packages, Gradle modules, and CDK stacks automatically.
+### Example (Other AI Agents)
 
-See [BOOTSTRAP.md](BOOTSTRAP.md) for the full scaffolding specification.
+Start your agent in an empty directory and ask it to set up a project from this template URL.
+The agent should fetch and follow the instructions in BOOTSTRAP.md.
 
 ## Key Infrastructure Features
 

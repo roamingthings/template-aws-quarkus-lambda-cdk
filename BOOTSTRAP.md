@@ -1,38 +1,40 @@
 # Bootstrapping a New Project from This Template
 
-This document provides instructions for AI coding agents (Claude Code, Cursor, etc.) to scaffold a new project
-from this template. It can also be used as a manual reference.
+This document provides the complete specification for AI coding agents (Claude Code, Cursor, Windsurf, etc.)
+to scaffold a new project from this template. It can also be used as a manual reference.
 
-## Usage
+## Agent Instructions
 
-**From within the cloned template:**
+### Interaction Flow
 
-```
-/bootstrap
-```
+1. Read this entire file before starting.
+2. Ask all questions from the "Questions to Ask" section in a single message,
+   presenting the options clearly with defaults noted.
+3. Wait for the user's answers before making any changes.
+4. Calculate the derived values from the user's responses.
+5. Show the user a confirmation summary with all values and derived values.
+   Ask for explicit confirmation before proceeding.
+6. Execute the **Transformation Steps** in order.
+7. After all transformations, verify the build compiles.
+8. Present the **Post-Setup Guidance** to the user.
 
-**From an empty directory (Claude Code):**
+### Getting the Template Files
 
-```
-Set up a new service using https://github.com/roamingthings/template-aws-quarkus-lambda-cdk
-```
+If you are running in an empty directory (not a cloned copy of the template):
 
-The agent will clone the template, read this file, and walk you through the setup.
+1. Clone the template into a temporary subdirectory:
+   ```bash
+   git clone https://github.com/roamingthings/template-aws-quarkus-lambda-cdk .bootstrap-tmp
+   ```
+2. Move all contents (including dotfiles) into the current directory:
+   ```bash
+   mv .bootstrap-tmp/* .bootstrap-tmp/.* . 2>/dev/null
+   rm -rf .bootstrap-tmp
+   ```
+3. Then proceed with the Transformation Steps below.
 
-### Cloning into a Non-Empty Directory
-
-When the user starts Claude Code in an empty directory, the `.claude/` configuration directory is created
-automatically before the agent runs. This means `git clone <url> .` will fail because the directory is not empty.
-
-**Workaround:** Clone into a temporary subdirectory and move the contents:
-
-```bash
-git clone <url> .bootstrap-tmp
-mv .bootstrap-tmp/* .bootstrap-tmp/.* . 2>/dev/null
-rm -rf .bootstrap-tmp
-```
-
-Then continue with the bootstrapping steps.
+If you are already inside a cloned copy of the template, skip directly to
+the Transformation Steps.
 
 ## Questions to Ask
 
@@ -40,11 +42,12 @@ Gather the following from the user before making any changes. Present all questi
 
 | # | Question | Example | Default | Validation |
 |---|----------|---------|---------|------------|
-| 1 | **Project name** (kebab-case, used for directories, CDK app name, resource naming) | `inventory-service` | — | Must be kebab-case, no underscores |
-| 2 | **Java base package** (the application-level package for all handler code) | `com.acme.inventory` | — | Valid Java package segments |
-| 3 | **Gradle group** (the Maven/Gradle group ID for the project) | `com.acme` | Same as base package | Valid Java package segments |
-| 4 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
-| 5 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
+| 1 | **Root project name** (kebab-case, used for `rootProject.name` in the root `settings.gradle.kts`) | `acme-inventory` | Same as project name | Must be kebab-case, no underscores |
+| 2 | **Project name** (kebab-case, used for service directories, CDK app name, resource naming) | `inventory-service` | — | Must be kebab-case, no underscores |
+| 3 | **Java base package** (the application-level package for all handler code) | `com.acme.inventory` | — | Valid Java package segments |
+| 4 | **Gradle group** (the Maven/Gradle group ID for the project) | `com.acme` | Same as base package | Valid Java package segments |
+| 5 | **Which handlers to include?** (multi-select) | REST API + MCP Server | All three | At least one must be selected |
+| 6 | **Keep shared module?** (`shared/shared-model` with cross-handler model classes) | yes | yes | — |
 
 ### Handler Options
 
@@ -74,6 +77,7 @@ Calculate these from the user's answers — do not ask for them separately.
 **Show the user a confirmation summary** with all derived values before making any changes. Example:
 
 ```
+Root project name:  acme-inventory
 Project name:       inventory-service
 Java base package:  com.acme.inventory
 Gradle group:       com.acme
@@ -114,7 +118,7 @@ Verify afterwards that `my-service/` and `my-service-st/` no longer exist.
 ### Step 3: Update Root `settings.gradle.kts`
 
 ```kotlin
-rootProject.name = "{PROJECT_NAME}"
+rootProject.name = "{ROOT_PROJECT_NAME}"
 
 includeBuild("{PROJECT_NAME}")
 includeBuild("cdk")
@@ -239,6 +243,10 @@ In `{STACK_CLASS}.java` and `McpApiConstruct.java`, update Lambda function modul
 **`cdk/cdk.json`:**
 - The `"app"` command (`"../gradlew run --console=plain"`) does not change (gradlew stays at root)
 
+**`docs/mcp-setup.md`:**
+- Replace `MyServiceStack` with `{STACK_CLASS}` (in prose and in `--stack-name` argument)
+- Replace `my-service-mcp` with `{PROJECT_NAME}` in the `claude mcp add` command
+
 ### Step 11: Remove Unselected Handlers
 
 For each handler **not** selected by the user:
@@ -255,6 +263,7 @@ For each handler **not** selected by the user:
 - Remove `greeterApiHandlerFunction` variable and related `CfnOutput` entries
 - Remove `/api/*` CloudFront behavior
 - In `{PROJECT_NAME}-st/`: remove `GreetingsResourceClient.java`, `GreetingsResourceIT.java`, and related entities
+- In `{PROJECT_NAME}-st/src/test/resources/application.properties`: remove the `quarkus.log.category."...greetings.boundary"` line (it belongs to the REST API handler)
 
 **If MCP Server is removed:**
 - Delete `{PROJECT_NAME}/handlers/greeter-mcp/`
@@ -263,6 +272,7 @@ For each handler **not** selected by the user:
 - Delete `OAuthFrontendConstruct.java`
 - Remove Cognito/MCP-related `CfnOutput` entries
 - Remove MCP section from README
+- Delete `docs/mcp-setup.md`
 
 **If only one handler remains and it is the REST API:**
 - The CloudFront distribution, `OAuthFrontendConstruct`, and S3 frontend are only needed for MCP. If MCP is removed, the REST API can be served directly via API Gateway without CloudFront.
@@ -318,8 +328,11 @@ The system test module uses a REST client config key `"myservice"` that must be 
 
 - Delete `BOOTSTRAP.md` (this file)
 - Delete the `openspec/` directory if present (template development artifacts)
-- Delete `.claude/skills/bootstrap/` directory (the bootstrap skill is no longer needed)
-- Update `CLAUDE.md` — remove any bootstrap-related instructions, keep only `@AGENTS.md`
+- Delete the `.claude/` directory (contains template-specific skills and settings not needed in the bootstrapped project)
+- Rewrite `CLAUDE.md` to contain only:
+  ```
+  @AGENTS.md
+  ```
 - Update `docs/project-structure.md` — replace generic `com.example` placeholder paths with actual
   project package paths, or delete the file if it no longer accurately describes the project structure
 
