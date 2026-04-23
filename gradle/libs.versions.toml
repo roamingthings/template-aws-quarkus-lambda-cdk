@@ -9,7 +9,7 @@ jspecify = "1.0.0"
 junitJupiter = "6.0.3"
 nullaway = "0.13.3"
 nullaway-plugin = "3.0.0"
-quarkivers-mcp = "1.10.2"
+quarkivers-mcp = "1.12.0"
 slf4j = "2.0.17"
 
 [libraries]
