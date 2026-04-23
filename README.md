@@ -96,66 +96,25 @@ cd my-service-st
 ../gradlew clean test
 ```
 
-## Using This Template with Coding Agents
+## Using This Template
 
-Fork this repository to create your application. After checkout, use a coding agent like Claude Code to customize the
-template for your use case.
+To bootstrap a new project from this template, point your AI coding agent to this repository and have it
+read [BOOTSTRAP.md](https://github.com/roamingthings/template-aws-quarkus-lambda-cdk/blob/main/BOOTSTRAP.md),
+which contains the complete scaffolding specification including questions to gather, transformation steps,
+and cleanup.
 
-### Initial Setup Prompts
+### Example (Claude Code)
 
-After forking and cloning your repository, use these prompts to configure the application:
-
-**1. Set application name and Gradle coordinates:**
-
-```
-Update the application name from "my-service" to "inventory-service".
-Update all package names accordingly. Update the stack names and resource
-names to use the new application name.
+```bash
+mkdir my-project && cd my-project
+claude
+# then type: Bootstrap this project from https://github.com/roamingthings/template-aws-quarkus-lambda-cdk
 ```
 
-**2. Configure AWS deployment settings:**
+### Example (Other AI Agents)
 
-```
-Update the configuration to deploy to eu-central-1 region. The AWS Application
-tag should be "arn:aws:resource-groups:eu-central-1:987654321098:group/inventory".
-```
-
-**3. Rename handler and adjust infrastructure:**
-
-```
-Rename the "item" handler to "product-catalog" handler. Update the Lambda
-function description to "Manages product catalog operations". Update all
-references in the CDK stack.
-```
-
-**4. Add business logic:**
-
-```
-The product-catalog handler should accept a Product record with fields:
-id (String), name (String), price (BigDecimal), category (enum: ELECTRONICS,
-BOOKS, CLOTHING). Implement validation logic to ensure price is positive and
-name is not empty. Return a result type with Success or ValidationError cases.
-```
-
-**5. Add infrastructure components:**
-
-```
-Add a DynamoDB table to MyLambdaStack for storing products. Table name should
-follow the naming convention using ConventionalDefaults. Use "id" as partition
-key. Grant the Lambda function read/write permissions.
-```
-
-### Example Customization Workflow
-
-1. **Fork** this repository on GitHub
-2. **Clone** your fork locally
-3. **Start Claude Code** in the project directory
-4. **Provide context** by referencing key files:
-    - `@cdk/src/main/java/de/roamingthings/CdkApp.java` - Application entry point
-    - `@cdk/src/main/java/de/roamingthings/mylambda/boundary/MyLambdaStack.java` - Infrastructure
-    - `@AGENTS.md` - Coding guidelines (automatically used by Claude Code)
-5. **Execute prompts** from the "Initial Setup Prompts" section above
-6. **Iterate** on your business requirements
+Start your agent in an empty directory and ask it to set up a project from this template URL.
+The agent should fetch and follow the instructions in BOOTSTRAP.md.
 
 ## Key Infrastructure Features
 
