@@ -1,6 +1,6 @@
 [versions]
 assertj = "3.27.7"
-awsCdkLib = "2.250.0"
+awsCdkLib = "2.251.0"
 awsCdkConstructs = "10.6.0"
 awsSdk = "2.42.39"
 errorprone-core = "2.49.0"
