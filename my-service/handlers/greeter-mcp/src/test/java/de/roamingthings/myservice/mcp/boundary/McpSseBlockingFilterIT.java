@@ -1,10 +1,13 @@
 package de.roamingthings.myservice.mcp.boundary;
 
+import de.roamingthings.myservice.mcp.Requirement;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 
+import static de.roamingthings.myservice.mcp.Requirement.Rn.R2_1;
+import static de.roamingthings.myservice.mcp.Requirement.Rn.R2_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -12,16 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class McpSseBlockingFilterIT {
 
     @Test
+    @Requirement(R2_1)
     void getMcpReturns405() {
         var response = RestAssured.given()
                 .accept("text/event-stream")
                 .get("/mcp");
 
-        assertThat(response.statusCode()).isEqualTo(405);
-        assertThat(response.header("Allow")).isEqualTo("POST, DELETE");
+        assertThat(response.statusCode()).as(R2_1 + " — " + R2_1.statement()).isEqualTo(405);
+        assertThat(response.header("Allow")).as(R2_1 + " — " + R2_1.statement()).isEqualTo("POST, DELETE");
     }
 
     @Test
+    @Requirement(R2_2)
     void postMcpIsNotBlocked() {
         var response = RestAssured.given()
                 .contentType("application/json")
@@ -31,6 +36,6 @@ class McpSseBlockingFilterIT {
                         """)
                 .post("/mcp");
 
-        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.statusCode()).as(R2_2 + " — " + R2_2.statement()).isEqualTo(200);
     }
 }

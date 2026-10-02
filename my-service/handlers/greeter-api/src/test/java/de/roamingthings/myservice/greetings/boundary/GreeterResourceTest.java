@@ -1,26 +1,36 @@
 package de.roamingthings.myservice.greetings.boundary;
 
+import de.roamingthings.myservice.greetings.Requirement;
 import de.roamingthings.shared.model.entity.Item;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
+import static de.roamingthings.myservice.greetings.Requirement.Rn.R1_1;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class GreeterResourceTest {
 
     @Test
-    void testSimpleLambdaSuccess() {
-        var in = new Item("72fee59e-3812-4dd6-be49-6ab638ee5a5e", "Test Item", "Test Description");
-        given()
+    @Requirement(R1_1)
+    void greetWithDefaultTemplate() {
+        var message = greet(new Item("72fee59e-3812-4dd6-be49-6ab638ee5a5e", "Duke", "Java mascot"));
+
+        assertThat(message).as(R1_1 + " — " + R1_1.statement()).isEqualTo("hello, Duke Quarkus on BCE");
+    }
+
+    static String greet(Item item) {
+        return given()
                 .contentType("application/json")
                 .accept("application/json")
-                .body(in)
+                .body(item)
                 .when()
-                .post("/greet")
+                .post("/api/greet")
                 .then()
                 .statusCode(200)
-                .body(containsString("{\"message\":\"hello, Test Item Quarkus on BCE\"}"));
+                .extract()
+                .jsonPath()
+                .getString("message");
     }
 }
