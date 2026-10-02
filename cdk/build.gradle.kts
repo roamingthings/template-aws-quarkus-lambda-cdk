@@ -20,6 +20,14 @@ dependencies {
     implementation(libs.aws.cdk.lib)
     implementation(libs.aws.cdk.constructs)
     implementation(libs.jspecify)
+    testImplementation(platform(libs.junit.jupiter.bom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.assertj.core)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 application {

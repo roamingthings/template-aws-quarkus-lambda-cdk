@@ -1,10 +1,12 @@
 package de.roamingthings.myservice.mcp.boundary;
 
+import de.roamingthings.myservice.mcp.Requirement;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 
+import static de.roamingthings.myservice.mcp.Requirement.Rn.R1_1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -12,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GreetingMcpToolsIT {
 
     @Test
+    @Requirement(R1_1)
     void greetReturnsGreeting() {
         var sessionId = initializeMcpSession();
 
@@ -25,7 +28,7 @@ class GreetingMcpToolsIT {
                 .post("/mcp");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.asString()).contains("Hello, World!");
+        assertThat(response.asString()).as(R1_1 + " — " + R1_1.statement()).contains("Hello, World!");
     }
 
     String initializeMcpSession() {

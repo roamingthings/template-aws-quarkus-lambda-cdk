@@ -87,7 +87,7 @@ subprojects {
     apply(plugin = "java")
 
     dependencies {
-        implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.31.3"))
+        implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.40.1"))
     }
 }
 ```
